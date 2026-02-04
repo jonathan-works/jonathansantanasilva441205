@@ -7,14 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
+import jakarta.persistence.Table;
+
 @Data
-@Entity(name = "ART_ARTAISTA")
+@Entity
+@Table(name = "ARTISTA")
 public class Artista extends Auditoria{
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column
     private Long id;
     
     @Column(name = "NM_NOME")
-    private String name;
+    private String nome;
 }
