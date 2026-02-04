@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 
+import lombok.Data;
+
+@Data
 public class Auditoria {
 
     @Column(name = "NM_USUARIO_CRIACAO")
