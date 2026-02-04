@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/artista")
+@RequestMapping("/v1/artista")
 @Tag(name = "Artista", description = "Endpoints de artistas")
 public class ArtistaController {
 

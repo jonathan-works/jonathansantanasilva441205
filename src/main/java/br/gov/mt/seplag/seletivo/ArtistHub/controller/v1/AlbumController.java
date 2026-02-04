@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/album")
+@RequestMapping("/v1/album")
 @Tag(name = "Álbum", description = "Endpoints de álbuns")
 public class AlbumController {
     private final AlbumService albumService;
