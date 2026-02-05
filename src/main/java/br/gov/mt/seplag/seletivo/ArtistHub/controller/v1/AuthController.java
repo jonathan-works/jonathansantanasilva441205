@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.gov.mt.seplag.seletivo.ArtistHub.dto.auth.AuthRequestDTO;
 import br.gov.mt.seplag.seletivo.ArtistHub.dto.auth.AuthResponseDTO;
+import br.gov.mt.seplag.seletivo.ArtistHub.dto.usuario.UsuarioRequestDTO;
+import br.gov.mt.seplag.seletivo.ArtistHub.dto.usuario.UsuarioResponseDTO;
 import br.gov.mt.seplag.seletivo.ArtistHub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 
@@ -41,4 +44,14 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> refreshToken() {
         return ResponseEntity.ok(service.refreshToken());
     }
+
+    @Operation(summary = "Registrar usuário", description = "Registra um novo usuário no sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })  
+    @PostMapping("/registrar")
+    public ResponseEntity<UsuarioResponseDTO> registrar(@Valid @RequestBody UsuarioRequestDTO request) {
+        return ResponseEntity.ok(service.registrar(request));
+    } 
 }
