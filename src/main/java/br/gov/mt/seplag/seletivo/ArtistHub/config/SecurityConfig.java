@@ -36,7 +36,8 @@ public class SecurityConfig {
                 auth.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                     .requestMatchers(HttpMethod.POST, "/v1/auth/token").permitAll()
                     .requestMatchers(HttpMethod.POST, "/v1/auth/refresh-token").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/v1/auth/registrar").permitAll();
+                    .requestMatchers(HttpMethod.POST, "/v1/auth/registrar").permitAll()
+                    .requestMatchers("/ws/**").permitAll();
                     
                 if (!env.acceptsProfiles(Profiles.of("prod"))) {
                     auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();

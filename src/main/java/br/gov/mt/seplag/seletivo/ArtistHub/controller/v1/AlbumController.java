@@ -13,6 +13,7 @@ import br.gov.mt.seplag.seletivo.ArtistHub.service.AlbumService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class AlbumController {
     private final AlbumService albumService;
     private final AlbumImagemService service;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Operation(summary = "Listar álbuns", parameters = {
         @Parameter(name = "page", description = "Número da página (0..N)", schema = @Schema(type = "integer", defaultValue = "0")),
@@ -54,6 +56,7 @@ public class AlbumController {
     @PostMapping
     public ResponseEntity<AlbumResponseDTO> save(@RequestBody AlbumRequestDTO dto) {
         var response = albumService.save(dto);
+        messagingTemplate.convertAndSend("/topic/albuns", response);
         return ResponseEntity.ok(response);
     }
 
