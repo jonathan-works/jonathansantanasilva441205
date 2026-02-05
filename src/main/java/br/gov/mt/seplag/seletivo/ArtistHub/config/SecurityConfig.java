@@ -1,83 +1,82 @@
 package br.gov.mt.seplag.seletivo.ArtistHub.config;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import br.gov.mt.seplag.seletivo.ArtistHub.config.security.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+    SecurityFilterChain securityFilterChain(HttpSecurity http, Environment env, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
+        return http
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .addFilterBefore(new SameOriginEnforcementFilter(), CorsFilter.class);
-        return http.build();
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> {
+                auth.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/auth/token").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/auth/refresh-token").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/auth/registrar").permitAll();
+                    
+                if (!env.acceptsProfiles(Profiles.of("prod"))) {
+                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+                }
+
+                auth.anyRequest().authenticated();
+            })
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+    
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
 
-    static class SameOriginEnforcementFilter extends OncePerRequestFilter {
-        @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-                throws ServletException, IOException {
-            String origin = request.getHeader("Origin");
-            if (origin != null && !origin.isBlank()) {
-                String expectedOrigin = buildExpectedOrigin(request);
-                if (expectedOrigin != null && !origin.equalsIgnoreCase(expectedOrigin)) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("text/plain;charset=UTF-8");
-                    response.getWriter().write("Cross-origin bloqueado: origem não permitida");
-                    return;
-                }
-            }
-            filterChain.doFilter(request, response);
-        }
+        config.setAllowedOrigins(List.of(
+            "http://localhost:3000",
+            "http://127.0.0.1:3000"
+        ));
+        config.setAllowedMethods(List.of(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+        config.setAllowedHeaders(List.of(
+            "Authorization", "Content-Type", "X-XSRF-TOKEN"
+        ));
+        config.setAllowCredentials(true);
 
-        private String buildExpectedOrigin(HttpServletRequest request) {
-            String forwardedProto = headerOrNull(request, "X-Forwarded-Proto");
-            String forwardedHost = headerOrNull(request, "X-Forwarded-Host");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-            if (forwardedHost != null) {
-                String scheme = forwardedProto != null ? forwardedProto : request.getScheme();
-                return scheme + "://" + forwardedHost;
-            }
-
-            String scheme = request.getScheme();
-            String hostHeader = headerOrNull(request, "Host");
-            if (hostHeader != null) {
-                return scheme + "://" + hostHeader;
-            }
-
-            String host = request.getServerName();
-            int port = request.getServerPort();
-            String portPart = isDefaultPort(scheme, port) ? "" : (":" + port);
-            return scheme + "://" + host + portPart;
-        }
-
-        private boolean isDefaultPort(String scheme, int port) {
-            return ("http".equalsIgnoreCase(scheme) && port == 80) || ("https".equalsIgnoreCase(scheme) && port == 443);
-        }
-
-        private String headerOrNull(HttpServletRequest request, String name) {
-            String value = request.getHeader(name);
-            return (value == null || value.isBlank()) ? null : value;
-        }
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

@@ -3,11 +3,15 @@ package br.gov.mt.seplag.seletivo.ArtistHub.service;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.gov.mt.seplag.seletivo.ArtistHub.config.security.JwtService;
 import br.gov.mt.seplag.seletivo.ArtistHub.dto.auth.AuthRequestDTO;
 import br.gov.mt.seplag.seletivo.ArtistHub.dto.auth.AuthResponseDTO;
+import br.gov.mt.seplag.seletivo.ArtistHub.dto.usuario.UsuarioRequestDTO;
+import br.gov.mt.seplag.seletivo.ArtistHub.dto.usuario.UsuarioResponseDTO;
+import br.gov.mt.seplag.seletivo.ArtistHub.mapper.UsuarioMapper;
 import br.gov.mt.seplag.seletivo.ArtistHub.model.Usuario;
 import br.gov.mt.seplag.seletivo.ArtistHub.repository.UsuarioRepository;
 import lombok.AllArgsConstructor;
@@ -17,8 +21,11 @@ import lombok.AllArgsConstructor;
 public class AuthService {
 
     private final UsuarioRepository repository;
-    private final JwtService jwtService;
+    private final UsuarioMapper mapper;
+    
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthResponseDTO token(AuthRequestDTO request) {
         try {
@@ -51,5 +58,14 @@ public class AuthService {
                     .build();
         }
         throw new RuntimeException("Não autorizado para renovação");
+    }
+
+    public UsuarioResponseDTO registrar(UsuarioRequestDTO request) {
+        var user = Usuario.builder()
+                .login(request.getLogin())
+                .senha(passwordEncoder.encode(request.getSenha()))
+                .build();
+
+        return mapper.toDTO(repository.save(user));
     }
 }
