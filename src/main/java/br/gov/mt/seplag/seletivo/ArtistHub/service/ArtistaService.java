@@ -13,14 +13,19 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.domain.Sort;
+
 @AllArgsConstructor
 @Service
 public class ArtistaService {
     private final ArtistaRepository repository;
     private final ArtistaMapper mapper;
 
-    public List<ArtistaResponseDTO> findAll() {
-       return repository.findAll().stream().map(mapper::toDTO).toList();
+    public List<ArtistaResponseDTO> findAll(String nome, Sort sort) {
+        if (nome != null && !nome.isBlank()) {
+            return repository.findByNomeContainingIgnoreCase(nome, sort).stream().map(mapper::toDTO).toList();
+        }
+       return repository.findAll(sort).stream().map(mapper::toDTO).toList();
     }
 
     public ArtistaResponseDTO save(ArtistaRequestDTO dto) {

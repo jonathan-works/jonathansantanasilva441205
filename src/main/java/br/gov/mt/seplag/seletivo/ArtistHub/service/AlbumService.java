@@ -19,7 +19,10 @@ public class AlbumService {
     private final AlbumRepository repository;
     private final AlbumMapper mapper;
 
-    public Page<AlbumResponseDTO> findAll(Pageable pageable) {
+    public Page<AlbumResponseDTO> findAll(Pageable pageable, Long artistaId) {
+        if (artistaId != null) {
+            return repository.findByArtistaId(artistaId, pageable).map(mapper::toDTO);
+        }
        return repository.findAll(pageable).map(mapper::toDTO);
     }
 
