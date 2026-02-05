@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RegionalIntegrationService {
 
     private final RegionalRepository repository;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private static final String EXTERNAL_API_URL = "https://integrador-argus-api.geia.vip/v1/regionais";
 
     @Transactional
