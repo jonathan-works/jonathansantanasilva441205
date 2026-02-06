@@ -1,0 +1,34 @@
+<div class="container mx-auto p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Artistas</h1>
+    <a routerLink="new" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Novo Artista</a>
+  </div>
+
+  <div class="mb-6">
+    <input 
+      type="text" 
+      [formControl]="searchControl" 
+      placeholder="Filtrar por nome..." 
+      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+  </div>
+
+  <div *ngIf="loading$ | async" class="text-center py-4">Carregando...</div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" *ngIf="!(loading$ | async)">
+    <div *ngFor="let artist of artists$ | async" class="border rounded shadow hover:shadow-lg transition bg-white">
+      <div class="p-4">
+        <div class="flex items-center space-x-4">
+          <!-- <img [src]="artist.photoUrl || 'assets/placeholder.png'" alt="{{artist.nome}}" class="w-16 h-16 rounded-full object-cover bg-gray-200"> -->
+          <div>
+            <h2 class="text-xl font-semibold">{{ artist.nome }}</h2>
+            <!-- <p class="text-gray-600">{{ artist.numberOfAlbums || 0 }} álbuns</p> -->
+          </div>
+        </div>
+        <div class="mt-4 flex justify-end space-x-2">
+          <a [routerLink]="[artist.id, 'edit']" class="text-green-600 hover:underline">Editar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

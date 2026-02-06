@@ -1,0 +1,34 @@
+<div class="container mx-auto p-4 max-w-2xl">
+  <h1 class="text-2xl font-bold mb-6">{{ isEdit ? 'Editar Artista' : 'Novo Artista' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded shadow">
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="nome">
+        Nome do Artista
+      </label>
+      <input 
+        formControlName="nome" 
+        id="nome" 
+        type="text" 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        [class.border-red-500]="form.get('nome')?.invalid && form.get('nome')?.touched"
+      >
+      <p *ngIf="form.get('nome')?.invalid && form.get('nome')?.touched" class="text-red-500 text-xs italic">
+        Nome é obrigatório.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <button 
+        type="submit" 
+        [disabled]="form.invalid"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+      >
+        Salvar
+      </button>
+      <a routerLink="/artists" class="inline-block align-baseline font-bold text-sm text-blue-600 hover:text-blue-800">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</div>
