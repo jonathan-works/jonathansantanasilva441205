@@ -1,0 +1,40 @@
+<div class="container mx-auto p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Regionais</h1>
+    <button (click)="onSynchronize()" [disabled]="loading$ | async" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+      <span *ngIf="loading$ | async" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+      Sincronizar
+    </button>
+  </div>
+
+  <div *ngIf="loading$ | async" class="text-center py-4 text-gray-500">
+    Carregando...
+  </div>
+
+  <div class="bg-white shadow rounded overflow-hidden" *ngIf="!(loading$ | async)">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Externo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let regional of regionals$ | async">
+          <td class="px-6 py-4 whitespace-nowrap">{{ regional.nome }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ regional.externalId }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span [ngClass]="regional.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+              {{ regional.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="(regionals$ | async)?.length === 0" class="text-center py-4 text-gray-500">
+      Nenhuma regional encontrada.
+    </div>
+  </div>
+</div>
