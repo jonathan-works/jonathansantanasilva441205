@@ -6,7 +6,7 @@ import br.gov.mt.seplag.seletivo.ArtistHub.mapper.AlbumMapper;
 import br.gov.mt.seplag.seletivo.ArtistHub.model.Album;
 import br.gov.mt.seplag.seletivo.ArtistHub.repository.AlbumRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +30,21 @@ public class AlbumService {
         var entity = mapper.toEntity(dto);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public AlbumResponseDTO getById(Long id) {
+        var entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Album não encontrado"));
+        return mapper.toDTO(entity);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Album não encontrado");
+        }
+        repository.deleteById(id);
     }
 
     @Transactional

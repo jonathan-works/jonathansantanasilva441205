@@ -22,7 +22,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final Map<String, Queue<Instant>> requestCounts = new ConcurrentHashMap<>();
     private static final int MAX_REQUESTS_PER_MINUTE = 10;
-    private static final long TIME_WINDOW_MILLIS = 60000; // 1 minute
+    private static final long TIME_WINDOW_MILLIS = 60000;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)

@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: artisthub-postgres
+    environment:
+      POSTGRES_DB: artisthub
+      POSTGRES_USER: artisthub
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - artisthub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artisthub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    container_name: artisthub-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - artisthub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  create-buckets:
+    image: minio/mc
+    container_name: artisthub-create-buckets
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      until /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc mb -p myminio/artisthub;
+      /usr/bin/mc anonymous set public myminio/artisthub;
+      exit 0;
+      "
+    networks:
+      - artisthub-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: artisthub-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/artisthub
+      SPRING_DATASOURCE_USERNAME: artisthub
+      SPRING_DATASOURCE_PASSWORD: password
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - artisthub-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: artisthub-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - artisthub-network
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  artisthub-network:
+    driver: bridge

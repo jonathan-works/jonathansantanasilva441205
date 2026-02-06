@@ -23,6 +23,9 @@ import br.gov.mt.seplag.seletivo.ArtistHub.config.security.JwtAuthenticationFilt
 import jakarta.servlet.DispatcherType;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.http.HttpStatus;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -30,6 +33,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, Environment env, JwtAuthenticationFilter jwtAuthFilter, RateLimitFilter rateLimitFilter) throws Exception {
         return http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> {
@@ -38,14 +42,12 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/v1/auth/refresh-token").permitAll()
                     .requestMatchers(HttpMethod.POST, "/v1/auth/registrar").permitAll()
                     .requestMatchers("/ws/**").permitAll()
-                    .requestMatchers("/actuator/**").permitAll();
-                    
-                if (!env.acceptsProfiles(Profiles.of("prod"))) {
-                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-                }
+                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
 
                 auth.anyRequest().authenticated();
             })
+            .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class)
             .build();
@@ -67,7 +69,8 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
             "http://localhost:4200",
-            "http://127.0.0.1:4200"
+            "http://127.0.0.1:4200",
+            "http://localhost:8080"
         ));
         config.setAllowedMethods(List.of(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"

@@ -50,12 +50,12 @@ class ArtistaControllerTest {
 
     @Test
     void shouldGetAll() throws Exception {
-        when(service.findAll(any(), any(Sort.class))).thenReturn(Collections.emptyList());
+        when(service.findAll()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/v1/artista"))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
-        verify(service).findAll(any(), any(Sort.class));
+        verify(service).findAll();
     }
 
     @Test
@@ -64,12 +64,12 @@ class ArtistaControllerTest {
         response.setId(1L);
         response.setNome("qwerq");
         
-        when(service.findAll(any(), any(Sort.class))).thenReturn(List.of(response));
+        when(service.findAll()).thenReturn(List.of(response));
 
         mockMvc.perform(get("/v1/artista"))
                 .andExpect(status().isOk());
 
-        verify(service).findAll(any(), any(Sort.class));
+        verify(service).findAll();
     }
 
     @Test

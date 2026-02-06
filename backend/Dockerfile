@@ -1,6 +1,7 @@
 FROM gradle:8.5-jdk21 AS build
 WORKDIR /app
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew bootJar -x test --no-daemon
 
 FROM openjdk:21-slim

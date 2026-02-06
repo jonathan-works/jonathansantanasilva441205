@@ -1,59 +1,39 @@
-# Frontend
+# Projeto Fullstack – Gerenciamento de Artistas e Álbuns (ArtistHub)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+PROCESSO SELETIVO CONJUNTO Nº 001/2026/SEPLAG/
+SEFAZ/SEDUC/SESP/PJC/PMMT/CBMMT/DETRAN/POLITEC/SEJUS/
+SEMA/SEAF/SINFRA/SECITECI/PGE/MTPREV
 
-## Development server
+Jonathan Santana Silva - 44120554856 - Engenheiro de Software – Fullstack Sênior
 
-To start a local development server, run:
+- **Front-end**: Angular 19, TypeScript 5.7, TailwindCSS para estilização e responsividade. O projeto utiliza Standalone Components, Reactive Forms para manipulação de formulários e RxJS para programação reativa. A comunicação com o backend é feita via HTTP Client e WebSocket (STOMP/SockJS) para atualizações em tempo real. A autenticação JWT é gerenciada via Interceptor, garantindo segurança nas requisições. O projeto é dockerizado e servido via Nginx.
 
-```bash
-ng serve
-```
+Justificativa: Escolhi o Angular por sua robustez e arquitetura bem definida, ideal para aplicações corporativas escaláveis. A combinação com TailwindCSS permite um desenvolvimento ágil de interfaces modernas e responsivas. A arquitetura baseada em serviços e componentes garante a separação de responsabilidades e facilitando a manutenção.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Como rodar o projeto
 
-## Code scaffolding
+### Requisitos
+- Docker e Docker Compose instalados.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Passos
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. Clone o repositório e, na raiz do projeto (pasta `frontend`), execute:
 
 ```bash
-ng generate --help
+docker-compose up --build -d
 ```
 
-## Building
+2. A aplicação estará disponível em:
+   - **Endereço da Aplicação**: `http://localhost:80`
 
-To build the project run:
+## Testes
+
+Para rodar os testes unitários (requer Node.js instalado localmente se não usar Docker):
 
 ```bash
-ng build
+npm test
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+Ou via Docker (se configurado para tal, ou executando dentro do container):
 ```bash
-ng test
+docker exec -it artisthub-frontend npm test
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
