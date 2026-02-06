@@ -1,0 +1,57 @@
+<div class="container mx-auto p-4 max-w-2xl">
+  <h1 class="text-2xl font-bold mb-6">{{ isEdit ? 'Editar Álbum' : 'Novo Álbum' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded shadow">
+    
+    <!-- Título -->
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="titulo">
+        Título do Álbum
+      </label>
+      <input 
+        formControlName="titulo" 
+        id="titulo" 
+        type="text" 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        [class.border-red-500]="form.get('titulo')?.invalid && form.get('titulo')?.touched"
+      >
+      <p *ngIf="form.get('titulo')?.invalid && form.get('titulo')?.touched" class="text-red-500 text-xs italic">
+        Título é obrigatório.
+      </p>
+    </div>
+
+    <!-- Artista -->
+    <div class="mb-6">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="artistaId">
+        Artista
+      </label>
+      <select 
+        formControlName="artistaId" 
+        id="artistaId"
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white"
+        [class.border-red-500]="form.get('artistaId')?.invalid && form.get('artistaId')?.touched"
+      >
+        <option [ngValue]="null">Selecione um artista</option>
+        <option *ngFor="let artist of artists$ | async" [value]="artist.id">
+          {{ artist.nome }}
+        </option>
+      </select>
+      <p *ngIf="form.get('artistaId')?.invalid && form.get('artistaId')?.touched" class="text-red-500 text-xs italic">
+        Artista é obrigatório.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <button 
+        type="submit" 
+        [disabled]="form.invalid"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+      >
+        Salvar
+      </button>
+      <a routerLink="/albums" class="inline-block align-baseline font-bold text-sm text-blue-600 hover:text-blue-800">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</div>
